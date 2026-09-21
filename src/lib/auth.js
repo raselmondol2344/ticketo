@@ -23,6 +23,7 @@ export const auth = betterAuth({
       isBlocked:{
         defaultValue:false,
       }
+      
     }
   }
 });
