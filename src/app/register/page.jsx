@@ -19,13 +19,20 @@ import {
 } from "@heroui/react";
 import { FaUser, FaEnvelope, FaLock, FaImage, FaGoogle } from "react-icons/fa";
 import Logo from "@/components/Logo";
+import { authClient } from "../../lib/auth-client";
 
 export default function RegisterPage() {
 
      const { register, handleSubmit } = useForm()
 
-     const onSubmit = (data) =>{
-        console.log(data)
+     const onSubmit = async (data) =>{
+
+        const { data:signUpData, error:signUpError } = await authClient.signUp.email({
+            ...data
+       
+    })
+    console.log(signUpData,signUpError)
+       
      }
     return (
        <div>
