@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import { ToastContainer } from "react-toastify";
 export const metadata = {
   title: "Ticketo | Premium Event Discovery & Ticket Booking Platform",
   description:
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
         <Navbar />
         <main className="flex-grow flex flex-col">{children}</main>
         <Footer />
+        <ToastContainer></ToastContainer>
       </body>
     </html>
   );
