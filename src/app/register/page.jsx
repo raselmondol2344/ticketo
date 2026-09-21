@@ -23,6 +23,7 @@ import { FaUser, FaEnvelope, FaLock, FaImage, FaGoogle } from "react-icons/fa";
 import Logo from "@/components/Logo";
 import { authClient } from "../../lib/auth-client";
 import { uploadImage } from "@/utils/uploadImage";
+import { redirect } from "next/navigation";
 
 export default function RegisterPage() {
 
@@ -55,7 +56,13 @@ export default function RegisterPage() {
       image: imageUrl, // এখানে STRING দিতে হবে
     });
 
-  console.log(signUpData, signUpError);
+  //console.log(signUpData, signUpError);
+  if(signUpError){
+    toast.error("registation not succeed")
+  }
+  else{
+    redirect("/login")
+  }
 };
     return (
         <div>
@@ -139,9 +146,7 @@ export default function RegisterPage() {
                                 <FaLock className="text-slate-400 text-sm mr-2 flex-shrink-0" />
 
                                 <Input
-                                    {...register("password", {
-                                        required: "Password is Requried",
-                                    })}
+                                    {...register("password", {required: "Password is Requried",})}
                                     id="password"
                                     placeholder="••••••••"
                                     type="password"
