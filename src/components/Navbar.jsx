@@ -33,23 +33,14 @@ export default function Navbar() {
     };
   }, []);
 
-  // const handleLogout = async () => {
-  //   await authClient.signOut();
-  //   router.refresh();
-  //   router.push("/");
-
-  // };
-
   const handleLogout = async () => {
-  await authClient.signOut({
-    fetchOptions: {
-      onSuccess: () => {
-        router.push("/login"); // বা router.push("/")
-        router.refresh();
-      },
-    },
-  });
-};
+    await authClient.signOut();
+    router.refresh();
+    router.push("/");
+
+  };
+
+ 
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/5 bg-slate-950/65 backdrop-blur-md py-3.5 px-6">
