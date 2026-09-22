@@ -1,66 +1,57 @@
-"use client";
-
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import {
-  FaUserCircle,
-  FaTicketAlt,
-  FaHistory,
-  FaBuilding,
-  FaCalendarAlt,
-  FaPlus,
-  FaUsers,
-  FaUserShield,
-  FaSignOutAlt,
-  FaHome,
-  FaBars
-} from "react-icons/fa";
-import { Button, Drawer } from "@heroui/react";
-import Logo from "./Logo";
+"use client"
+import Footer from "@/components/Footer";
+import Logo from "@/components/Logo";
+import Navbar from "@/components/Navbar";
 import Image from "next/image";
+import { FaBuilding, FaCalendarAlt, FaHistory, FaHome, FaPlus, FaRegCalendarAlt, FaSignOutAlt, FaTicketAlt, FaUserCircle, FaUsers, FaUserShield } from "react-icons/fa";
+import Link from "next/link";
+import { useSession } from "@/lib/auth-client";
 
-// Menu items for each role
-const MENU_BY_ROLE = {
-  attendee: [
-    { key: "overview", label: "Overview", icon: FaUserCircle },
-    { key: "tickets", label: "My Tickets", icon: FaTicketAlt },
-    { key: "payments", label: "Payments", icon: FaHistory },
-  ],
-  organizer: [
-    { key: "overview", label: "Overview", icon: FaUsers },
-    { key: "organization", label: "Organization", icon: FaBuilding },
-    { key: "add-event", label: "Add Event", icon: FaPlus },
-    { key: "manage-events", label: "Manage Events", icon: FaCalendarAlt },
-    { key: "attendees", label: "Attendees", icon: FaUsers },
-  ],
-  admin: [
-    { key: "users", label: "Users", icon: FaUserShield },
-    { key: "events", label: "Approve Events", icon: FaCalendarAlt },
-    { key: "transactions", label: "Transaction Logs", icon: FaHistory },
-  ],
-};
+export default function DashboardSidebar() {
+   const {data:session} = useSession()
 
-export default function DashboardSidebar({ role = "organizer" }) {
-  const pathname = usePathname();
+  //console.log(session)
+ 
 
-  const handleLogout = () => {
-    alert("Sign Out Clicked! (Design Only)");
-  };
 
-  const menuItems = MENU_BY_ROLE[role] || MENU_BY_ROLE.attendee;
 
-  const getPath = (tabKey) => {
-    if (role === "admin") {
-      return `/dashboard/admin/${tabKey}`;
-    }
-    if (tabKey === "overview") {
-      return `/dashboard/${role}`;
-    }
-    return `/dashboard/${role}/${tabKey}`;
-  };
+  const organizerMenu =[
+     { key: "overview", label: "Overview", icon: FaUsers, href:"/dashbord/organizer" },
+        { key: "organization", label: "Organization", icon: FaBuilding , href:"/dashbord/organizer/organization" },
+        { key: "add-event", label: "Add Event", icon: FaPlus, href:"/dashbord/organizer/add-event"  },
+        { key: "manage-events", label: "Manage Events", icon: FaCalendarAlt, href:"/dashbord/organizer/manage-events" },
+        { key: "attendees", label: "Attendees", icon: FaUsers, href:"/dashbord/organizer/attendees"  },
+  ]
+  const attendeeMenu =[
+       
+        { key: "overview", label: "Overview", icon: FaUserCircle, href:"/dashbord/attendee"  },
+        { key: "tickets", label: "Tickets", icon: FaTicketAlt, href:"/dashbord/attendee/tickets" },
+        { key: "payments", label: "Payments", icon: FaHistory, href:"/dashbord/attendee/payments"  },
+  ]
+  const adminMenu =[
+        { key: "users", label: "Users", icon: FaUserShield, href:"/dashbord/users" },
+        { key: "events", label: "Events", icon: FaCalendarAlt , href:"/dashbord/events" },
+        { key: "transcription", label: "Transcription Logs", icon: FaHistory, href:"/dashbord/transcription"  },
+       
+  ]
 
-  const SidebarContent = () => (
-    <div className="h-full flex flex-col bg-slate-950/80 backdrop-blur-xl">
+
+    const role = session?.user?.role;
+  
+   const menuItems = role ==="organizer" ? organizerMenu : role ==="attendee" ? attendeeMenu : role === "admin" ? adminMenu :[] ;
+
+
+
+  const handleLogout = async () => {
+      await authClient.signOut();
+      router.refresh();
+      router.push("/");
+  
+    };
+  return (
+    <div>
+      <aside className="w-64 h-screen border-r border-white/5" >
+          <div className="h-full flex flex-col bg-slate-950/80 backdrop-blur-xl">
       {/* Brand / Logo */}
       <div className="px-6 py-5 border-b border-white/5">
         <Logo />
@@ -73,14 +64,14 @@ export default function DashboardSidebar({ role = "organizer" }) {
             <Image
               width={40}
               height={40}
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent("Jane Doe")}&background=7c3aed&color=fff&bold=true`}
+              src={ session?.user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent("Jane Doe")}&background=7c3aed&color=fff&bold=true`}
               alt="Avatar"
               className="object-cover w-full h-full"
             />
           </div>
           <div className="overflow-hidden">
             <p className="text-white text-sm font-bold truncate leading-tight">
-              Jane Doe
+               {session?.user?.name || "NAME NOT FOUND"}
             </p>
             <span className={`text-[10px] font-bold uppercase tracking-wider ${role === "admin" ? "text-yellow-400" : role === "organizer" ? "text-indigo-400" : "text-pink-400"}`}>
               {role}
@@ -93,26 +84,26 @@ export default function DashboardSidebar({ role = "organizer" }) {
       <nav className="flex-grow overflow-y-auto px-3 py-4 space-y-1">
         <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest px-3 pb-2">Navigation</p>
 
-        {menuItems.map(({ key, label, icon: Icon }) => {
-          const targetPath = getPath(key);
-          const isActive = pathname === targetPath || (role === "admin" && pathname === "/dashboard/admin" && key === "users");
-          return (
-            <Link
+        {
+          menuItems.map(({ key, label, icon: Icon,href })=>{
+            return(
+
+              <Link
               key={key}
-              href={targetPath}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 text-left cursor-pointer ${isActive
-                ? "bg-gradient-to-r from-pink-500/20 to-indigo-600/20 text-white border border-pink-500/20 shadow-sm"
-                : "text-slate-400 hover:text-white hover:bg-white/5"
-                }`}
+              href={href}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 text-left cursor-pointer  text-slate-400 hover:text-white hover:bg-white/5 }`}
             >
-              <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isActive ? "bg-gradient-to-br from-pink-500 to-indigo-600 text-white shadow-md shadow-pink-500/20" : "bg-white/5 text-slate-400"}`}>
+              <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors bg-white/5 text-slate-400}`}>
                 <Icon size={14} />
               </span>
               <span>{label}</span>
-              {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-pink-400" />}
+              {/* {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-pink-400" />} */}
             </Link>
-          );
-        })}
+            )
+          })
+        }
+
+      
       </nav>
 
       {/* Bottom Links */}
@@ -134,34 +125,8 @@ export default function DashboardSidebar({ role = "organizer" }) {
         </button>
       </div>
     </div>
-  );
 
-  return (
-    <>
-      {/* Desktop Sidebar (Persistent aside panel) */}
-      <aside className="hidden lg:block w-64 shrink-0 h-screen sticky top-0 border-r border-white/5">
-        <SidebarContent />
-      </aside>
-
-      {/* Mobile Top Header + Toggleable HeroUI Drawer */}
-      <div className="lg:hidden w-full flex items-center justify-between px-6 py-4 bg-slate-950/80 border-b border-white/5 backdrop-blur-xl sticky top-0 z-50">
-        <Logo />
-
-        <Drawer>
-          <Button variant="bordered" className="border-white/10 hover:border-white/20 text-white font-semibold flex items-center gap-2 min-w-0 px-3 py-1.5 h-10" radius="lg">
-            <FaBars />
-            Menu
-          </Button>
-          <Drawer.Backdrop>
-            <Drawer.Content placement="left" className="bg-slate-950/95 border-r border-white/5 backdrop-blur-xl p-0 w-64 max-w-xs">
-              <Drawer.Dialog className="bg-transparent h-full flex flex-col p-0 border-none shadow-none">
-                <Drawer.CloseTrigger className="text-white hover:text-red-400 absolute right-4 top-5 z-50 cursor-pointer" />
-                <SidebarContent />
-              </Drawer.Dialog>
-            </Drawer.Content>
-          </Drawer.Backdrop>
-        </Drawer>
-      </div>
-    </>
-  );
+        </aside>
+    </div>
+  )
 }
